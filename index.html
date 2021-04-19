@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue 整体架构 Mini 版实现</title>
+</head>
+<body>
+  <div id="app" style="color: red;font-size: 20px;">
+    
+    我的姓名是：{{name}}，请多多关照~
+    <h1>{{ name }}</h1>
+    <ul>
+      <li style="color: green">{{ age }}</li>
+      <li>{{ info.job }}</li>
+    </ul>
+  </div>
+
+  <script src="dist/vue/index.js"></script>
+  <script>
+    // options API
+    // 模板: render  >  template   >  html式模板
+    let vm = new Vue({
+      el: '#app',
+      data () {
+        return {
+          name: '晓滨',
+          age: 34,
+          info: {
+            job: 'teacher',
+            students: [
+              {
+                id: 1,
+                name: '小张'
+              },
+              {
+                id: 2,
+                name: '小王'
+              }
+            ]
+          },
+          hobby: ['piano', 'travel', 'film']
+        }
+      }
+    })
+
+    setTimeout(function() {
+      vm.name = 'Benson';
+      vm.age = '27';
+      vm.info.students.push({
+        id: 3,
+        name: '小红'
+      });
+    }, 3000);
+  </script>
+</body>
+</html>
