@@ -5,8 +5,9 @@ let patches = {};
 let vnIndex = 0;
 
 function diff(oldVnode, vnode) {
-  const index = 0; // 初始从零开始
   patches = {};
+  vnIndex = 0;
+  const index = 0; // 初始从零开始
   vNodeWalk(oldVnode, vnode, index);
   return patches;
 }

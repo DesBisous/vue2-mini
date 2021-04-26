@@ -7,6 +7,8 @@ vue2-mini 的内容包含：
 - template 编译为 AST
 - AST 构造 render 函数
 - render 函数生成 vnode
-- vnode 与 oldVnode 的 diff - [待添加]
-- 打补丁 patch - [待添加]
+- vnode 与 oldVnode 的 diff
+- 打补丁 patch
 - 挂载(mount)与更新(update)
+
+## 项目解析

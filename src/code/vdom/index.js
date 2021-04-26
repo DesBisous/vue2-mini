@@ -1,9 +1,9 @@
-import { createElement, createTextVNode } from './vnode';
+import { createElementVNode, createTextVNode } from './vnode';
 
 function renderMixin(Vue) {
 
   Vue.prototype._c = function () {
-    return createElement(...arguments);
+    return createElementVNode(...arguments);
   }
 
   Vue.prototype._v = function () {

@@ -1,6 +1,8 @@
 
 import { isUndef, isDef } from '../../shared/util.js';
 import { diff } from './diff.js';
+import { doPatch } from './doPatch.js';
+import { createElement, removeElement } from './rnode.js';
 
 function patch(oldVnode, vnode) {
   // 判断新的 vnode 不存在
@@ -29,61 +31,13 @@ function patch(oldVnode, vnode) {
   } else {
     // oldVnode 与 vnode diff 比较打补丁
     const patches = diff(oldVnode, vnode);
-    console.log(patches);
     if (Object.keys(patches).length) {
       // 开始打补丁
+      doPatch(el, patches);
     }
+    vnode.el = el;
     return el;
   }
-}
-
-function createElement(vnode) {
-  const { tag, props, children, text } = vnode;
-  if (typeof tag === 'string') {
-    vnode.el = document.createElement(tag);
-    updateProps(vnode);
-    children.forEach(function (child) {
-      vnode.el.appendChild(createElement(child));
-    })
-  } else {
-    vnode.el = document.createTextNode(text);
-  }
-  return vnode.el;
-}
-
-function updateProps(vnode) {
-  const el = vnode.el,
-    newProps = vnode.props || {};
-
-  for (let key in newProps) {
-    if (Object.hasOwnProperty.call(newProps, key)) {
-      if (key === 'style') {
-        for (let sKey in newProps[key]) {
-          if (Object.hasOwnProperty.call(newProps[key], sKey)) {
-            el.style[sKey] = newProps[key][sKey];
-          }
-        }
-      } else if (key === 'class') {
-        el.className = el.class;
-      } else {
-        el.setAttribute(key, newProps[key]);
-      }
-    }
-  }
-}
-
-function removeElement(oldVnode) {
-  // 判断 oldVnode 是否是真实节点
-  const isRealElement = isDef(oldVnode.nodeType)
-  let el = isRealElement ? oldVnode : oldVnode.el;
-  const childNodes = el.childNodes;
-  for (const item of childNodes) {
-    removeNode(el, childNode);
-  }
-}
-
-function removeNode(parent, childNode) {
-  parent.removeChild(childNode);
 }
 
 export {

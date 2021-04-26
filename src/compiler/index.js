@@ -8,8 +8,8 @@ function compileToRenderFunction(html) {
     render = new Function(`
     with(this){ return ${code}; }
   `);
-  console.log(ast);
-  console.log(code);
+  console.log('AST:', ast);
+  console.log('render:', code);
   return render;
 }
 

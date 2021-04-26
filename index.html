@@ -9,7 +9,7 @@
   <div id="app" style="color: red;font-size: 20px;">
     
     我的姓名是：{{name}}，请多多关照~
-    <h1>{{ name }}</h1>
+    <h1 :class="name">{{ name }}</h1>
     <ul>
       <li style="color: green" :data-age="age">{{ age }}</li>
       <li :style="jobStyle">{{ info.job }}</li>
@@ -49,13 +49,24 @@
     })
 
     setTimeout(function() {
-      vm.name = 'Benson';
-      vm.age = '27';
       vm.info.students.push({
         id: 3,
         name: '小红'
       });
-    }, 3000);
+    }, 1000);
+
+    // setTimeout(function() {
+    //   vm.name = 'Benson';
+    //   vm.age = '27';
+    //   vm.info.students.push({
+    //     id: 3,
+    //     name: '小红'
+    //   });
+    // }, 3000);
+
+    // setTimeout(function() {
+    //   vm.info.students = "手机";
+    // }, 5000);
   </script>
 </body>
 </html>

@@ -149,12 +149,30 @@
     Dep.target = targetStack.pop();
   }
 
+  class VNode {
+    constructor(tag, props, children, text) {
+      this.tag = tag;
+      this.props = props;
+      this.children = children;
+      this.text = text;
+    }
+
+  }
+
+  function createElementVNode(tag, attrs = {}, ...children) {
+    return new VNode(tag, attrs, children);
+  }
+
+  function createTextVNode(text) {
+    return new VNode(undefined, undefined, undefined, text);
+  }
+
   const originArrMethods = Array.prototype,
         arrayMethods = Object.create(originArrMethods); // 创建一个对象， 并继承 Array.prototype
 
   const ARR_METHODS = ['push', 'pop', 'shift', 'unshify', 'reverse', 'sort', 'splice'];
   ARR_METHODS.forEach(function (method) {
-    arrayMethods[method] = function (...args) {
+    def(arrayMethods, method, function (...args) {
       const result = originArrMethods[method].apply(this, args),
             ob = this.__ob__;
       let newArr;
@@ -171,16 +189,19 @@
       } // 对数组新加入的元素进行数据劫持
 
 
-      if (newArr) ob.observeArray(newArr); // 返回原函数执行结果
+      if (newArr) ob.observeArray(newArr); // notify change
+
+      ob.dep.notify(); // 返回原函数执行结果
 
       return result;
-    };
+    });
   });
 
   const arrayKeys = Object.getOwnPropertyNames(arrayMethods);
 
   class Observer {
     constructor(data) {
+      this.dep = new Dep();
       def(data, '__ob__', this);
 
       if (isArray(data)) {
@@ -231,7 +252,7 @@
 
     const getter = property && property.get;
     const setter = property && property.set;
-    observe(val); // 对值内部的属性进行数据劫持，这里源码中会做一个 shallow 判断，是否一开始深层进行依赖
+    let childOb = observe(val); // 对值内部的属性进行数据劫持，这里源码中会做一个 shallow 判断，是否一开始深层进行依赖
 
     Object.defineProperty(data, key, {
       enumerable: true,
@@ -242,6 +263,21 @@
 
         if (Dep.target) {
           dep.depend(); // 收集依赖,包括 Watcher 收集 dep 和 dep 收集 Watcher
+
+          if (childOb) {
+            /**
+             * 子数据响应对象本身的 this.dep 也进行依赖收集
+             * 这里其实对于数组方法重写的劫持触发更新，就是调用这里的 this.dep
+             * {a: [1, 2]}
+             * a 会闭包一个 dep 依赖，然后 value：[1, 2] 会构建出 ob 然后对 ob.dep 也会收集当前的依赖
+             */
+            childOb.dep.depend();
+
+            if (Array.isArray(value)) {
+              // 如果是数组，对里面每一个响应对象本身的 this.dep 也进行依赖收集
+              dependArray(value);
+            }
+          }
         } // console.log('响应式获取：' + value);
 
 
@@ -253,9 +289,8 @@
 
         if (newVal === value || newVal !== newVal && value !== value) {
           return;
-        }
+        } // console.log('响应式设置：' + key + ' = ' + newVal);
 
-        console.log('响应式设置：' + key + ' = ' + newVal);
 
         if (setter) {
           setter.call(data, newVal);
@@ -271,12 +306,31 @@
     });
   }
 
+  function dependArray(value) {
+    for (let e, i = 0, l = value.length; i < l; i++) {
+      e = value[i];
+      e && e.__ob__ && e.__ob__.dep.depend();
+
+      if (Array.isArray(e)) {
+        dependArray(e);
+      }
+    }
+  }
+
   function observe(data) {
-    if (!isObject(data) || data.__ob__) {
-      return data;
+    if (!isObject(data) || data instanceof VNode) {
+      return;
     }
 
-    new Observer(data);
+    let ob;
+
+    if (data.__ob__) {
+      ob = data.__ob__;
+    } else {
+      ob = new Observer(data);
+    }
+
+    return ob;
   }
 
   function initState(vm) {
@@ -541,8 +595,8 @@
           render = new Function(`
     with(this){ return ${code}; }
   `);
-    console.log(ast);
-    console.log(code);
+    console.log('AST:', ast);
+    console.log('render:', code);
     return render;
   }
 
@@ -648,7 +702,7 @@
   function isUndef(v) {
     return v === undefined || v === null;
   }
-  function isDef(v) {
+  function isDef$1(v) {
     return v !== undefined && v !== null;
   }
 
@@ -661,9 +715,10 @@
   let vnIndex = 0;
 
   function diff(oldVnode, vnode) {
+    patches = {};
+    vnIndex = 0;
     const index = 0; // 初始从零开始
 
-    patches = {};
     vNodeWalk(oldVnode, vnode, index);
     return patches;
   }
@@ -734,42 +789,7 @@
     });
   }
 
-  function patch(oldVnode, vnode) {
-    // 判断新的 vnode 不存在
-    if (isUndef(vnode)) {
-      // 判断旧节点存在
-      if (isDef(oldVnode)) {
-        // Vue 源码这里会执行销毁的生命周期函数，直接删除旧节点内容
-        removeElement(oldVnode);
-      }
-
-      return;
-    } // 判断 oldVnode 是否是真实节点
-
-
-    const isRealElement = isDef(oldVnode.nodeType),
-          el = isRealElement ? oldVnode : oldVnode.el;
-
-    if (isRealElement) {
-      // 首次挂载
-      const nEl = createElement$1(vnode),
-            parentElement = el.parentElement; // el.nextSibling 指的是 el 的兄弟节点
-
-      parentElement.insertBefore(nEl, el.nextSibling);
-      parentElement.removeChild(el);
-      return nEl;
-    } else {
-      // oldVnode 与 vnode diff 比较打补丁
-      const patches = diff(oldVnode, vnode);
-      console.log(patches);
-
-      if (Object.keys(patches).length) ;
-
-      return el;
-    }
-  }
-
-  function createElement$1(vnode) {
+  function createElement(vnode) {
     const {
       tag,
       props,
@@ -781,7 +801,7 @@
       vnode.el = document.createElement(tag);
       updateProps(vnode);
       children.forEach(function (child) {
-        vnode.el.appendChild(createElement$1(child));
+        vnode.el.appendChild(createElement(child));
       });
     } else {
       vnode.el = document.createTextNode(text);
@@ -793,19 +813,30 @@
   function updateProps(vnode) {
     const el = vnode.el,
           newProps = vnode.props || {};
+    handleProps(el, newProps);
+  }
 
-    for (let key in newProps) {
-      if (Object.hasOwnProperty.call(newProps, key)) {
-        if (key === 'style') {
-          for (let sKey in newProps[key]) {
-            if (Object.hasOwnProperty.call(newProps[key], sKey)) {
-              el.style[sKey] = newProps[key][sKey];
+  function handleProps(rnode, props) {
+    for (let key in props) {
+      if (Object.hasOwnProperty.call(props, key)) {
+        if (!props[key]) {
+          rnode.removeAttribute(key);
+        } else if (key === 'style') {
+          for (let sKey in props[key]) {
+            if (Object.hasOwnProperty.call(props[key], sKey)) {
+              rnode.style[sKey] = props[key][sKey];
             }
           }
         } else if (key === 'class') {
-          el.className = el.class;
+          rnode.className = props[key];
+        } else if (key === 'value') {
+          if (rnode.tagName === 'INPUT' || rnode.tagName === 'TEXTAREA') {
+            rnode.value = props[key];
+          } else {
+            rnode.setAttribute(key, props[key]);
+          }
         } else {
-          el.setAttribute(key, newProps[key]);
+          rnode.setAttribute(key, props[key]);
         }
       }
     }
@@ -817,13 +848,93 @@
     let el = isRealElement ? oldVnode : oldVnode.el;
     const childNodes = el.childNodes;
 
-    for (const item of childNodes) {
+    for (const childNode of childNodes) {
       removeNode(el, childNode);
     }
   }
 
   function removeNode(parent, childNode) {
     parent.removeChild(childNode);
+  }
+
+  let index = 0;
+  let finalPatches = {};
+
+  function doPatch(el, patches) {
+    index = 0;
+    finalPatches = patches;
+    console.log(finalPatches);
+    rnodeWalk(el);
+  }
+
+  function rnodeWalk(rnode) {
+    const patch = finalPatches[index++],
+          childNodes = rnode.childNodes;
+    [...childNodes].map(c => rnodeWalk(c));
+
+    if (patch) {
+      patchAction(rnode, patch);
+    }
+  }
+
+  function patchAction(rnode, patch) {
+    for (const p of patch) {
+      switch (p.type) {
+        case ATTR:
+          handleProps(rnode, p.attrs);
+          break;
+
+        case TEXT:
+          rnode.textContent = p.text;
+          break;
+
+        case REMOVE:
+          rnode.parentNode.removeChild(rnode);
+          break;
+
+        case REPLACE:
+          rnode.parentNode.replaceChild(createElement(p.vnode), rnode);
+          break;
+      }
+    }
+  }
+
+  function patch(oldVnode, vnode) {
+    // 判断新的 vnode 不存在
+    if (isUndef(vnode)) {
+      // 判断旧节点存在
+      if (isDef$1(oldVnode)) {
+        // Vue 源码这里会执行销毁的生命周期函数，直接删除旧节点内容
+        removeElement(oldVnode);
+      }
+
+      return;
+    } // 判断 oldVnode 是否是真实节点
+
+
+    const isRealElement = isDef$1(oldVnode.nodeType),
+          el = isRealElement ? oldVnode : oldVnode.el;
+
+    if (isRealElement) {
+      // 首次挂载
+      const nEl = createElement(vnode),
+            parentElement = el.parentElement; // el.nextSibling 指的是 el 的兄弟节点
+
+      parentElement.insertBefore(nEl, el.nextSibling);
+      parentElement.removeChild(el);
+      return nEl;
+    } else {
+      // oldVnode 与 vnode diff 比较打补丁
+      const patches = diff(oldVnode, vnode);
+
+      if (Object.keys(patches).length) {
+        // 开始打补丁
+        doPatch(el, patches);
+      }
+
+      vnode.el = el;
+      return el;
+    }
   }
 
   function mountComponent(vm, el) {
@@ -899,27 +1010,9 @@
     };
   }
 
-  class VNode {
-    constructor(tag, props, children, text) {
-      this.tag = tag;
-      this.props = props;
-      this.children = children;
-      this.text = text;
-    }
-
-  }
-
-  function createElement(tag, attrs = {}, ...children) {
-    return new VNode(tag, attrs, children);
-  }
-
-  function createTextVNode(text) {
-    return new VNode(undefined, undefined, undefined, text);
-  }
-
   function renderMixin(Vue) {
     Vue.prototype._c = function () {
-      return createElement(...arguments);
+      return createElementVNode(...arguments);
     };
 
     Vue.prototype._v = function () {
