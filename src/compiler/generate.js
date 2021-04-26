@@ -1,18 +1,15 @@
 // 判断是否为 {{  }} 这种文本
 const defaultTagRE = /\{\{((?:.|\r?\n)+?)\}\}/g;
+const dynamicAttrRE = /^:.+$/;
 
+// 源码的方法名为：genProps，位置：vue/src/compiler/codegen/index.js
 function formatProps(attrs) {
-  var a = {
-    class: '',
-    style: {
-      color: '',
-      fontSize: '',
-    }
-  }
-
   let attrStr = '';
+  let dynamicAttrStr = '';
+  let dynamic = false;
 
   attrs.forEach(item => {
+    dynamic = dynamicAttrRE.test(item.name);
     if (item.name === 'style') {
       let styleAttrs = {};
       item.value.split(';').forEach((subItem) => {
@@ -21,10 +18,20 @@ function formatProps(attrs) {
       })
       item.value = styleAttrs;
     }
-    attrStr += `${item.name}: ${JSON.stringify(item.value)},`;
+    if (dynamic) {
+      dynamicAttrStr += `"${item.name.slice(1)}", ${item.value},`;
+    } else {
+      attrStr += `${item.name}: ${JSON.stringify(item.value)},`;
+    }
   })
 
-  return `{${attrStr.slice(0, -1)}}`;
+  attrStr = `{${attrStr.slice(0, -1)}}`
+
+  if (dynamicAttrStr) {
+    return `_d(${attrStr}, [${dynamicAttrStr.slice(0, -1)}])`;
+  } else {
+    return attrStr;
+  }
 }
 
 function generateChild(node) {

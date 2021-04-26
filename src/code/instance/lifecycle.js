@@ -45,8 +45,6 @@ function lifecycleMixin(Vue) {
     } else {
       vm.$el = patch(prevVnode, vnode);
     }
-
-
   }
 }
 

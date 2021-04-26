@@ -11,8 +11,9 @@
     我的姓名是：{{name}}，请多多关照~
     <h1>{{ name }}</h1>
     <ul>
-      <li style="color: green">{{ age }}</li>
-      <li>{{ info.job }}</li>
+      <li style="color: green" :data-age="age">{{ age }}</li>
+      <li :style="jobStyle">{{ info.job }}</li>
+      <li >{{ info.students }}</li>
     </ul>
   </div>
 
@@ -39,7 +40,10 @@
               }
             ]
           },
-          hobby: ['piano', 'travel', 'film']
+          hobby: ['piano', 'travel', 'film'],
+          jobStyle: {
+            color: 'teal'
+          }
         }
       }
     })

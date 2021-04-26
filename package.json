@@ -6,6 +6,16 @@
   "scripts": {
     "dev": "rollup -c -w"
   },
+  "lint-staged": {
+    "*.js": [
+      "eslint",
+      "prettier --write"
+    ],
+    "*.ts?(x)": [
+      "eslint",
+      "prettier --parser=typescript --write"
+    ]
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -16,5 +26,9 @@
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-serve": "^1.1.0"
+  },
+  "devDependencies": {
+    "lint-staged": "^10.5.4",
+    "yorkie": "^2.0.0"
   }
 }

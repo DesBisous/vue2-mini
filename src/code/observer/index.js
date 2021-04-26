@@ -67,7 +67,7 @@ function defineReactive(data, key, val) {
       if (Dep.target) {
         dep.depend(); // 收集依赖,包括 Watcher 收集 dep 和 dep 收集 Watcher
       }
-      console.log('响应式获取：' + value);
+      // console.log('响应式获取：' + value);
       return value;
     },
     set(newVal) {

@@ -17,6 +17,16 @@ function renderMixin(Vue) {
     return typeof value === 'object' ? JSON.stringify(value) : value;
   }
 
+  Vue.prototype._d = function (baseObj, values) {
+    for (let i = 0; i < values.length; i += 2) {
+      const key = values[i];
+      if (typeof key === 'string' && key) {
+        baseObj[values[i]] = values[i + 1];
+      }
+    }
+    return baseObj;
+  }
+
   Vue.prototype._render = function () {
     const vm = this,
       render = vm.$options.render,

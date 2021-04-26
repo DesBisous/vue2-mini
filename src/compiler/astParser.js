@@ -1,5 +1,6 @@
 // id="app" id='app' id=app
 const attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
+const dynamicArgAttribute = /^\s*((?:v-[\w-]+:|@|:|#)\[[^=]+?\][^\s"'<>\/=]*)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
 //标签名  <my-header></my-header>
 const ncname = `[a-zA-Z_][\\-\\.0-9_a-zA-Z]*`;
 // <my:header></my:header>
@@ -70,7 +71,7 @@ function parseHtmlToAst(html) {
       advance(start[0].length);
 
       // 开始匹配标签属性
-      while (!(end = html.match(startTagClose)) && (attr = html.match(attribute))) {
+      while (!(end = html.match(startTagClose)) && (attr = html.match(dynamicArgAttribute) || html.match(attribute))) {
         match.attrs.push({
           name: attr[1],
           value: attr[3] || attr[4] || attr[5]
