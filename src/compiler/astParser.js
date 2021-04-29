@@ -71,10 +71,13 @@ function parseHtmlToAst(html) {
       advance(start[0].length);
 
       // 开始匹配标签属性
-      while (!(end = html.match(startTagClose)) && (attr = html.match(dynamicArgAttribute) || html.match(attribute))) {
+      while (
+        !(end = html.match(startTagClose)) &&
+        (attr = html.match(dynamicArgAttribute) || html.match(attribute))
+      ) {
         match.attrs.push({
           name: attr[1],
-          value: attr[3] || attr[4] || attr[5]
+          value: attr[3] || attr[4] || attr[5],
         });
         advance(attr[0].length);
       }
@@ -90,7 +93,7 @@ function parseHtmlToAst(html) {
   // 对 html 删除匹配项长度父子
   function advance(len) {
     html = html.substring(len);
-  };
+  }
 
   // 对开始标签进行父子关系处理
   function start(tagName, attrs) {
@@ -125,7 +128,7 @@ function parseHtmlToAst(html) {
     if (text.length > 0) {
       currentParent.children.push({
         type: 3,
-        text
+        text,
       });
     }
   }
@@ -137,13 +140,11 @@ function parseHtmlToAst(html) {
       type: 1,
       children: [],
       attrs,
-      parent: Window
-    }
+      parent: Window,
+    };
   }
 
   return root;
 }
 
-export {
-  parseHtmlToAst
-}
+export { parseHtmlToAst };

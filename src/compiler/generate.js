@@ -12,10 +12,10 @@ function formatProps(attrs) {
     dynamic = dynamicAttrRE.test(item.name);
     if (item.name === 'style') {
       let styleAttrs = {};
-      item.value.split(';').forEach((subItem) => {
+      item.value.split(';').forEach(subItem => {
         const [key, value] = subItem.split(':');
         styleAttrs[key] = value;
-      })
+      });
       item.value = styleAttrs;
     }
     if (dynamic) {
@@ -23,9 +23,9 @@ function formatProps(attrs) {
     } else {
       attrStr += `${item.name}: ${JSON.stringify(item.value)},`;
     }
-  })
+  });
 
-  attrStr = `{${attrStr.slice(0, -1)}}`
+  attrStr = `{${attrStr.slice(0, -1)}}`;
 
   if (dynamicAttrStr) {
     return `_d(${attrStr}, [${dynamicAttrStr.slice(0, -1)}])`;
@@ -42,16 +42,16 @@ function generateChild(node) {
 
     if (!defaultTagRE.test(text)) {
       // 这里需要 JSON.stringify 在包一下，否者会出现 _v(hello) 解析的时候 hello 不就成了变量了
-      return `_v(${JSON.stringify(text)})`
+      return `_v(${JSON.stringify(text)})`;
     }
 
     let match,
       index, // 保存正则成功解析项的开始索引
       // defaultTagRE.lastIndex 会在正则解析的时候，一直处于匹配项末端的索引，下一轮匹配就从 defaultTagRE.lastIndex 开始
-      lastIndex = defaultTagRE.lastIndex = 0,
+      lastIndex = (defaultTagRE.lastIndex = 0),
       textArr = [];
 
-    while (match = defaultTagRE.exec(text)) {
+    while ((match = defaultTagRE.exec(text))) {
       index = match.index; // 保存正则成功解析项的开始索引
       if (index > lastIndex) {
         textArr.push(JSON.stringify(text.slice(lastIndex, index)));
@@ -82,16 +82,11 @@ function getChildren(el) {
 function generate(el) {
   const children = getChildren(el);
 
-  const code = `_c(${JSON.stringify(el.tag)}, ${el.attrs.length > 0 ?
-    formatProps(el.attrs) : 'undefined'
-    }${children ?
-      `, ${children}` : ''
-    })`;
+  const code = `_c(${JSON.stringify(el.tag)}, ${
+    el.attrs.length > 0 ? formatProps(el.attrs) : 'undefined'
+  }${children ? `, ${children}` : ''})`;
 
   return code;
-};
-
-export {
-  generate,
 }
 
+export { generate };

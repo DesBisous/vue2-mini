@@ -7,7 +7,6 @@ let finalPatches = {};
 function doPatch(el, patches) {
   index = 0;
   finalPatches = patches;
-  console.log(finalPatches)
   rnodeWalk(el);
 }
 
@@ -26,7 +25,7 @@ function patchAction(rnode, patch) {
   for (const p of patch) {
     switch (p.type) {
       case ATTR:
-        handleProps(rnode, p.attrs)
+        handleProps(rnode, p.attrs);
         break;
       case TEXT:
         rnode.textContent = p.text;
@@ -35,10 +34,7 @@ function patchAction(rnode, patch) {
         rnode.parentNode.removeChild(rnode);
         break;
       case REPLACE:
-        rnode.parentNode.replaceChild(
-          createElement(p.vnode),
-          rnode
-        );
+        rnode.parentNode.replaceChild(createElement(p.vnode), rnode);
         break;
       default:
         break;
@@ -46,6 +42,4 @@ function patchAction(rnode, patch) {
   }
 }
 
-export {
-  doPatch
-}
+export { doPatch };

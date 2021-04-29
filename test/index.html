@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app" style="color: red; font-size: 20px">
+      我的姓名是：{{name}}，请多多关照!
+      <h1 :class="name">{{ name }}</h1>
+      <ul>
+        <li style="color: green" :data-age="age">{{ age }}</li>
+        <li :style="jobStyle">{{ info.job }}</li>
+        <li>{{ info.students }}</li>
+      </ul>
+    </div>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue-template-ast-compiler"></script> -->
+  </body>
+</html>

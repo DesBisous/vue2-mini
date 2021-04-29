@@ -38,10 +38,10 @@ function initData(vm) {
   vm._data = data = typeof data === 'function' ? data.call(vm) : data;
 
   for (let key in data) {
-    proxy(vm, '_data', key);
+    proxy(vm, '_data', key); // 代理数据
   }
 
-  observe(data);
+  observe(data); // 创建响应式
 }
 
 function initComputed(vm) { }

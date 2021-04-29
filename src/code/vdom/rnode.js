@@ -1,3 +1,5 @@
+import { isDef } from '../../shared/util.js';
+
 function createElement(vnode) {
   const { tag, props, children, text } = vnode;
   if (typeof tag === 'string') {
@@ -5,7 +7,7 @@ function createElement(vnode) {
     updateProps(vnode);
     children.forEach(function (child) {
       vnode.el.appendChild(createElement(child));
-    })
+    });
   } else {
     vnode.el = document.createTextNode(text);
   }
@@ -47,7 +49,7 @@ function handleProps(rnode, props) {
 
 function removeElement(oldVnode) {
   // 判断 oldVnode 是否是真实节点
-  const isRealElement = isDef(oldVnode.nodeType)
+  const isRealElement = isDef(oldVnode.nodeType);
   let el = isRealElement ? oldVnode : oldVnode.el;
   const childNodes = el.childNodes;
   for (const childNode of childNodes) {
@@ -59,8 +61,4 @@ function removeNode(parent, childNode) {
   parent.removeChild(childNode);
 }
 
-export {
-  createElement,
-  handleProps,
-  removeElement
-}
+export { createElement, handleProps, removeElement };
