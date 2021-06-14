@@ -28,19 +28,18 @@ export default class Watcher {
       // parsePath 解析属性(a.b.c)对应在 vm 的 value，源码存在但本处不涉及到
       this.getter = parsePath(expOrFn);
       if (!this.getter) {
-        this.getter = function () { }
-        process.env.NODE_ENV !== 'production' && console.warn(
-          `Failed watching path: "${expOrFn}" ` +
-          'Watcher only accepts simple dot-delimited paths. ' +
-          'For full control, use a function instead.'
-        )
+        this.getter = function () {};
+        process.env.NODE_ENV !== 'production' &&
+          console.warn(
+            `Failed watching path: "${expOrFn}" ` +
+              'Watcher only accepts simple dot-delimited paths. ' +
+              'For full control, use a function instead.'
+          );
       }
     }
 
     // 初次执行
-    this.value = this.lazy
-      ? undefined
-      : this.get();
+    this.value = this.lazy ? undefined : this.get();
   }
 
   get() {
@@ -58,7 +57,7 @@ export default class Watcher {
 
   addDep(dep) {
     const id = dep.id;
-    // 当前 Watcher 的新 depIds 不存在，这加入传进来的 dep
+    // 当前 Watcher 的新 depIds 不存在，就加入传进来的 dep
     if (!this.newDepIds.has(id)) {
       this.newDepIds.add(id);
       this.newDeps.push(dep); // Watcher 关联的 dep 保存

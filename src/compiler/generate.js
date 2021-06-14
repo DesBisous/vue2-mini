@@ -1,27 +1,22 @@
+import { genHandlers } from './events';
+
 // 判断是否为 {{  }} 这种文本
 const defaultTagRE = /\{\{((?:.|\r?\n)+?)\}\}/g;
-const dynamicAttrRE = /^:.+$/;
 
-// 源码的方法名为：genProps，位置：vue/src/compiler/codegen/index.js
-function formatProps(attrs) {
+// 位置：vue/src/compiler/codegen/index.js
+function genProps(attrs) {
   let attrStr = '';
   let dynamicAttrStr = '';
   let dynamic = false;
 
   attrs.forEach(item => {
-    dynamic = dynamicAttrRE.test(item.name);
-    if (item.name === 'style') {
-      let styleAttrs = {};
-      item.value.split(';').forEach(subItem => {
-        const [key, value] = subItem.split(':');
-        styleAttrs[key] = value;
-      });
-      item.value = styleAttrs;
-    }
+    dynamic = item.dynamic;
     if (dynamic) {
-      dynamicAttrStr += `"${item.name.slice(1)}", ${item.value},`;
+      // className, name | "name"
+      dynamicAttrStr += `${item.name.slice(1)}, ${item.value},`;
     } else {
-      attrStr += `${item.name}: ${JSON.stringify(item.value)},`;
+      // "class": app | "app"
+      attrStr += `${JSON.stringify(item.name)}: ${item.value},`;
     }
   });
 
@@ -32,6 +27,18 @@ function formatProps(attrs) {
   } else {
     return attrStr;
   }
+}
+
+function genData(el) {
+  let data = '{';
+  if (el.attrs) {
+    data += `attrs:${genProps(el.attrs)},`;
+  }
+  if (el.events) {
+    data += `${genHandlers(el.events, false)},`;
+  }
+  data = data.replace(/,$/, '') + '}';
+  return data;
 }
 
 function generateChild(node) {
@@ -66,7 +73,7 @@ function generateChild(node) {
       textArr.push(JSON.stringify(text.slice(lastIndex)));
     }
 
-    // _v('我的姓名是：'+{{name}}+'，请多多关照~')
+    // _v('我的姓名是：'+_s(name)+'，请多多关照~')
     return `_v(${textArr.join('+')})`;
   }
 }
@@ -83,7 +90,8 @@ function generate(el) {
   const children = getChildren(el);
 
   const code = `_c(${JSON.stringify(el.tag)}, ${
-    el.attrs.length > 0 ? formatProps(el.attrs) : 'undefined'
+    genData(el)
+    // el.attrs.length > 0 ? formatProps(el.attrs) : 'undefined'
   }${children ? `, ${children}` : ''})`;
 
   return code;

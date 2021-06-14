@@ -1,4 +1,3 @@
-
 import { isUndef, isDef } from '../../shared/util.js';
 import { diff } from './diff.js';
 import { doPatch } from './doPatch.js';
@@ -31,6 +30,7 @@ function patch(oldVnode, vnode) {
   } else {
     // oldVnode 与 vnode diff 比较打补丁
     const patches = diff(oldVnode, vnode);
+    console.log('patches', patches);
     if (Object.keys(patches).length) {
       // 开始打补丁
       doPatch(el, patches);
@@ -40,6 +40,4 @@ function patch(oldVnode, vnode) {
   }
 }
 
-export {
-  patch
-};
+export { patch };

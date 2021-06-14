@@ -7,16 +7,12 @@ class VNode {
   }
 }
 
-function createElementVNode(tag, attrs = {}, ...children) {
-  return new VNode(tag, attrs, children);
+function createElementVNode(tag, props = {}, ...children) {
+  return new VNode(tag, props, children);
 }
 
 function createTextVNode(text) {
   return new VNode(undefined, undefined, undefined, text);
 }
 
-export {
-  VNode,
-  createElementVNode,
-  createTextVNode
-}
+export { VNode, createElementVNode, createTextVNode };

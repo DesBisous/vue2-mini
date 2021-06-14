@@ -6,8 +6,8 @@ function proxy(vm, target, key) {
     set(newValue) {
       if (newValue === vm[target][key]) return;
       vm[target][key] = newValue;
-    }
-  })
+    },
+  });
 }
 
 function isObject(value) {
@@ -23,41 +23,34 @@ function def(data, key, value, enumerable) {
     configurable: true,
     enumerable: !!enumerable,
     writable: true,
-    value
-  })
+    value,
+  });
 }
 
 function remove(arr, item) {
   if (arr.length) {
     var index = arr.indexOf(item);
     if (index > -1) {
-      return arr.splice(index, 1)
+      return arr.splice(index, 1);
     }
   }
 }
 
-const bailRE = /[^\w.$]/
+const bailRE = /[^\w.$]/;
 function parsePath(path) {
   if (bailRE.test(path)) {
-    return
+    return;
   }
-  const segments = path.split('.')
+  const segments = path.split('.');
   return function (obj) {
     for (let i = 0; i < segments.length; i++) {
-      if (!obj) return
-      obj = obj[segments[i]]
+      if (!obj) return;
+      obj = obj[segments[i]];
     }
-    return obj
-  }
+    return obj;
+  };
 }
 
 export * from './env';
 
-export {
-  proxy,
-  isObject,
-  isArray,
-  def,
-  remove,
-  parsePath
-};
+export { proxy, isObject, isArray, def, remove, parsePath };

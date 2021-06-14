@@ -1,4 +1,4 @@
-import { observe } from "../observer";
+import { observe } from '../observer';
 import { proxy } from '../utils';
 
 function initState(vm) {
@@ -10,7 +10,7 @@ function initState(vm) {
   }
 
   if (options.methods) {
-    initMethods(vm);
+    initMethods(vm, options.methods);
   }
 
   if (options.data) {
@@ -26,11 +26,15 @@ function initState(vm) {
   }
 }
 
-function initProps(vm) {
+function initProps(vm) {}
 
+function initMethods(vm, methods) {
+  for (const key in methods) {
+    if (Object.hasOwnProperty.call(methods, key) && methods[key]) {
+      vm[key] = bind(methods[key], vm);
+    }
+  }
 }
-
-function initMethods(vm) { }
 
 function initData(vm) {
   let data = vm.$options.data;
@@ -44,12 +48,21 @@ function initData(vm) {
   observe(data); // 创建响应式
 }
 
-function initComputed(vm) { }
+function initComputed(vm) {}
 
-function initWatch(vm) {
+function initWatch(vm) {}
 
+function bind(fn, ctx) {
+  function boundFn(argu) {
+    const len = arguments.length;
+    return len
+      ? len > 1
+        ? fn.apply(ctx, arguments)
+        : fn.call(ctx, argu)
+      : fn.call(ctx);
+  }
+  boundFn._length = fn.length;
+  return boundFn;
 }
 
-export {
-  initState
-}
+export { initState };

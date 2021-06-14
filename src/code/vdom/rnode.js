@@ -1,7 +1,7 @@
 import { isDef } from '../../shared/util.js';
 
 function createElement(vnode) {
-  const { tag, props, children, text } = vnode;
+  const { tag, children, text } = vnode;
   if (typeof tag === 'string') {
     vnode.el = document.createElement(tag);
     updateProps(vnode);
@@ -22,27 +22,50 @@ function updateProps(vnode) {
 }
 
 function handleProps(rnode, props) {
-  for (let key in props) {
-    if (Object.hasOwnProperty.call(props, key)) {
-      if (!props[key]) {
+  handleAttrs(rnode, props.attrs);
+  updateDOMListeners(rnode, props.on);
+}
+
+function handleAttrs(rnode, attrs) {
+  for (let key in attrs) {
+    if (Object.hasOwnProperty.call(attrs, key)) {
+      if (!attrs[key]) {
         rnode.removeAttribute(key);
       } else if (key === 'style') {
-        for (let sKey in props[key]) {
-          if (Object.hasOwnProperty.call(props[key], sKey)) {
-            rnode.style[sKey] = props[key][sKey];
+        for (let sKey in attrs[key]) {
+          if (Object.hasOwnProperty.call(attrs[key], sKey)) {
+            rnode.style[sKey] = attrs[key][sKey];
           }
         }
       } else if (key === 'class') {
-        rnode.className = props[key];
+        rnode.className = attrs[key];
       } else if (key === 'value') {
         if (rnode.tagName === 'INPUT' || rnode.tagName === 'TEXTAREA') {
-          rnode.value = props[key];
+          rnode.value = attrs[key];
         } else {
-          rnode.setAttribute(key, props[key]);
+          rnode.setAttribute(key, attrs[key]);
         }
       } else {
-        rnode.setAttribute(key, props[key]);
+        rnode.setAttribute(key, attrs[key]);
       }
+    }
+  }
+}
+
+function updateDOMListeners(rnode, on) {
+  function add(event, handler) {
+    rnode.addEventListener(event, handler, false);
+  }
+
+  for (const name in on) {
+    //遍历on,此时name就是对应的事件类型，比如:click
+    const cur = on[name];
+    if (Array.isArray(cur)) {
+      for (const handler of on) {
+        add(name, handler);
+      }
+    } else {
+      add(name, cur);
     }
   }
 }

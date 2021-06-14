@@ -4,16 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vue 整体架构 Mini 版实现</title>
+    <style>
+      .color-turquoise {
+        color: turquoise;
+      }
+    </style>
   </head>
   <body>
     <div id="app" style="color: red; font-size: 20px">
       我的姓名是：{{name}}，请多多关照~
-      <h1 :class="name">{{ name }}</h1>
+      <h1 :class="className">{{ name }}</h1>
       <ul>
         <li style="color: green" :data-age="age">{{ age }}</li>
         <li :style="jobStyle">{{ info.job }}</li>
         <li>{{ info.students }}</li>
       </ul>
+      <button @click="onClickEvent">点击事件</button>
     </div>
 
     <script src="dist/index.umd.js"></script>
@@ -44,29 +50,24 @@
             jobStyle: {
               color: 'teal',
             },
+            className: '',
           };
+        },
+        methods: {
+          onClickEvent() {
+            this.name = '晓滨';
+            this.info.students.push({
+              id: Math.floor(Math.random() * 100 + 1),
+              name: '小红',
+            });
+          },
         },
       });
 
       setTimeout(function () {
-        vm.info.students.push({
-          id: 3,
-          name: '小红',
-        });
+        vm.name = 'Benson';
+        vm.className = 'color-turquoise';
       }, 1000);
-
-      // setTimeout(function() {
-      //   vm.name = 'Benson';
-      //   vm.age = '27';
-      //   vm.info.students.push({
-      //     id: 3,
-      //     name: '小红'
-      //   });
-      // }, 3000);
-
-      // setTimeout(function() {
-      //   vm.info.students = "手机";
-      // }, 5000);
     </script>
   </body>
 </html>

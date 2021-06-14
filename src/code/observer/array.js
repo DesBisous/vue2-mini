@@ -1,4 +1,4 @@
-import { def } from "../utils";
+import { def } from '../utils';
 
 const originArrMethods = Array.prototype,
   arrayMethods = Object.create(originArrMethods); // 创建一个对象， 并继承 Array.prototype
@@ -18,7 +18,6 @@ ARR_METHODS.forEach(function (method) {
     const result = originArrMethods[method].apply(this, args),
       ob = this.__ob__;
 
-
     let newArr;
 
     switch (method) {
@@ -29,7 +28,8 @@ ARR_METHODS.forEach(function (method) {
       case 'splice':
         newArr = args[2];
         break;
-      default: break;
+      default:
+        break;
     }
 
     // 对数组新加入的元素进行数据劫持
@@ -38,9 +38,7 @@ ARR_METHODS.forEach(function (method) {
     ob.dep.notify();
     // 返回原函数执行结果
     return result;
-  })
-})
+  });
+});
 
-export {
-  arrayMethods
-}
+export { arrayMethods };
