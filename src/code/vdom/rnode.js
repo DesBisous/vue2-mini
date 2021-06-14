@@ -61,7 +61,7 @@ function updateDOMListeners(rnode, on) {
     //遍历on,此时name就是对应的事件类型，比如:click
     const cur = on[name];
     if (Array.isArray(cur)) {
-      for (const handler of on) {
+      for (const handler of cur) {
         add(name, handler);
       }
     } else {

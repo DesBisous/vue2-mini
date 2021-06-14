@@ -138,7 +138,7 @@ function parseHtmlToAst(html) {
           if (isDynamic) {
             name = name.slice(1, -1);
           }
-          addHandler(el, name, value);
+          addHandler(el, name, value, isDynamic);
         }
       } else {
         isDynamic = false;
