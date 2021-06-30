@@ -1444,3 +1444,7 @@ Template -> Ast -> Render -> VNode -> Diff -> RNode
 每一个步骤虽然说都不会特别的困难，但其中使用上了很多小技巧，并且 Vue 在针对 HTML 的特殊性也有独立的 Diff 算法，这是特别值得学习的，对待事物不能死板，一定要学会变通，灵活使用才能发出最大的价值。
 
 本文主要是为了学习 Vue 的整个工作原理，因此实现了整个简易版工作流程的 Vue，只是仅仅实现了简单的功能，在 Vue 源码中是肯定做了更多的事情的，但本项目仅仅是为了学习而建，对 Vue 源码感兴趣的小伙伴可以自己去查阅 Vue 源码学习更多优秀的内容~
+
+## 附件
+- Npm: [vue-template-ast-compiler](https://www.npmjs.com/package/vue-template-ast-compiler)
+- GitHub: [vue2-mini](https://github.com/DesBisous/vue2-mini)
